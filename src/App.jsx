@@ -3,7 +3,7 @@ import "./App.css";
 import { request, gql } from "graphql-request";
 
 // const endpoint = "http://localhost:4000/graphql";
-const endpoint = "https://13.250.60.69:4000/graphql";
+const endpoint = "https://13.250.60.69:80/graphql";
 
 const GET_USERS = gql`
   query {
