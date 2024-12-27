@@ -1,74 +1,78 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
-import { request, gql } from "graphql-request";
 
-// const endpoint = "http://localhost:4000/graphql";
-const endpoint = "http://13.250.60.69:80/graphql";
+import {
+  ApolloClient,
+  ApolloProvider,
+  InMemoryCache,
+  useMutation,
+  useQuery,
+  gql,
+} from "@apollo/client";
 
-const GET_USERS = gql`
+const client = new ApolloClient({
+  uri: "http://13.250.60.69:80/graphql",
+  cache: new InMemoryCache(),
+});
+
+// const endpoint = "http://localhost:80/graphql";
+// const endpoint = "http://13.250.60.69:80/graphql";
+
+const GET_ITEMS = gql`
   query {
-    users {
+    items {
       id
       name
-      email
     }
   }
 `;
 
-const ADD_USER = gql`
-  mutation AddUser($name: String!, $email: String!) {
-    addUser(name: $name, email: $email) {
+const ADD_ITEM = gql`
+  mutation addItem($name: String!) {
+    addItem(name: $name) {
       id
       name
-      email
     }
   }
 `;
 
 function App() {
-  const [users, setUsers] = useState([]);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [newItem, setNewItem] = useState("");
+  const { loading, error, data } = useQuery(GET_ITEMS);
+  const [addItem] = useMutation(ADD_ITEM);
 
-  const fetchUsers = async () => {
-    const data = await request(endpoint, GET_USERS);
-    setUsers(data.users);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error! {error.message}</p>;
+
+  const handleAddItem = () => {
+    addItem({ variables: { name: newItem } })
+      .then(() => setNewItem(""))
+      .catch((err) => console.error(err));
   };
-
-  const addUser = async () => {
-    await request(endpoint, ADD_USER, { name, email });
-    fetchUsers();
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   return (
     <div>
-      <h1>GraphQL Full Stack App</h1>
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <button onClick={addUser}>Add User</button>
+      <h1>Items</h1>
       <ul>
-        {users.map((user) => (
-          <li key={user.id}>
-            {user.name} ({user.email})
-          </li>
+        {data.items.map((item) => (
+          <li key={item.id}>{item.name}</li>
         ))}
       </ul>
+      <input
+        type="text"
+        value={newItem}
+        onChange={(e) => setNewItem(e.target.value)}
+        placeholder="Add new item"
+      />
+      <button onClick={handleAddItem}>Add Item</button>
     </div>
   );
 }
 
-export default App;
+export default function AppWrapper() {
+  return (
+    <ApolloProvider client={client}>
+      <App />
+    </ApolloProvider>
+  );
+}
