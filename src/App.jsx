@@ -11,7 +11,7 @@ import {
 } from "@apollo/client";
 
 const client = new ApolloClient({
-  uri: "http://ec2-beanstalk-test.ap-southeast-1.elasticbeanstalk.com",
+  uri: "https://ec2-beanstalk-test.ap-southeast-1.elasticbeanstalk.com",
   cache: new InMemoryCache(),
 });
 
