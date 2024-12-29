@@ -11,7 +11,7 @@ import {
 } from "@apollo/client";
 
 const client = new ApolloClient({
-  uri: "https://13.250.60.69:8080/graphql",
+  uri: "http://13.250.60.69:8080/graphql",
   cache: new InMemoryCache(),
 });
 
