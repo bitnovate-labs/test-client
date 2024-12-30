@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import {
@@ -14,9 +14,6 @@ const client = new ApolloClient({
   uri: import.meta.env.VITE_API_URL,
   cache: new InMemoryCache(),
 });
-
-// const endpoint = "http://localhost:80/graphql";
-// const endpoint = "http://13.250.60.69:80/graphql";
 
 const GET_ITEMS = gql`
   query {
@@ -62,8 +59,19 @@ function App() {
     quantity: "",
   });
 
-  const { loading, error, data } = useQuery(GET_ITEMS);
+  const { loading, error, data, refetch } = useQuery(GET_ITEMS, {
+    // Automatically fetch items when the page loads
+    notifyOnNetworkStatusChange: true,
+  });
+
   const [addItem] = useMutation(ADD_ITEM);
+
+  useEffect(() => {
+    // Optionally, you can refetch data after adding a new item to keep the list updated
+    if (data) {
+      refetch();
+    }
+  }, [data, refetch]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error! {error.message}</p>;
@@ -78,9 +86,12 @@ function App() {
         quantity: parseInt(quantity, 10),
       },
     })
-      .then(() =>
-        setNewItem({ name: "", description: "", price: "", quantity: "" })
-      )
+      .then(() => {
+        // Reset input fields after successful addition
+        setNewItem({ name: "", description: "", price: "", quantity: "" });
+        // Optionally, refetch items to get the updated list
+        refetch();
+      })
       .catch((err) => console.error(err));
   };
 
@@ -94,7 +105,7 @@ function App() {
       <h1>Items</h1>
       <ul>
         {data.items.map((item) => (
-          <li key={item.id}>
+          <li key={item.item_id}>
             <strong>{item.name}</strong> - {item.description} - ${item.price} -{" "}
             {item.quantity} in stock
             <br />
