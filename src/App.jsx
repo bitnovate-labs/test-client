@@ -11,7 +11,7 @@ import {
 } from "@apollo/client";
 
 const client = new ApolloClient({
-  uri: "https://ec2.devdomain.cloud/",
+  uri: "https://ec2.devdomain.cloud/graphql",
   cache: new InMemoryCache(),
 });
 
