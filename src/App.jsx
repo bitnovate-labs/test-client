@@ -64,6 +64,8 @@ function App() {
     notifyOnNetworkStatusChange: true,
   });
 
+  console.log(data);
+
   const [addItem] = useMutation(ADD_ITEM);
 
   useEffect(() => {
